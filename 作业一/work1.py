@@ -53,17 +53,6 @@ x_range = np.linspace(x_train.min(), x_train.max(), 500).reshape(-1, 1)
 x_range_poly = poly_features.transform(x_range)
 y_range_pred = model.predict(x_range_poly)
 
-
-#绘图
-plt.plot(x_range, y_range_pred, color='green', label=f'Polynomial Degree {degree}')
-plt.title('Polynomial Regression Model')
-plt.xlabel('X')
-plt.ylabel('Y')
-plt.legend()
-plt.savefig("作业一/png_homework.png")
-plt.show()
-
-
 # 输出多项式表达式（仅包含非零系数的项）
 coefficients = model.coef_[0]
 intercept = model.intercept_[0]
@@ -75,6 +64,17 @@ for i in range(1, degree + 1):
         poly_expression += f" + {coefficients[i]:.2f}x^{i}"
 
 print("多项式回归模型表达式：", poly_expression)
+
+
+#绘图
+plt.plot(x_range, y_range_pred, color='green', label=f'Polynomial Degree {degree}')
+plt.title(poly_expression)
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.legend()
+plt.savefig("作业一/png_homework.png")
+plt.show()
+
 
 #作业提交部分
 new_test_prediction=model.predict(new_x_test_poly)
