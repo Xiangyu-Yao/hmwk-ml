@@ -115,3 +115,4 @@ hmwk_csv = pd.read_csv(os.path.join(current_dir, "submission.csv"), header=0)
 hmwk_csv["预测结果"] = y_test_pred
 
 hmwk_csv.to_csv(os.path.join(current_dir, "submission.csv"), index=False)
+input()

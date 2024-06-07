@@ -1,0 +1,381 @@
+PassengerId,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
+892,1,Robert Mr. Brown,male,37,1,1,,83.80399906,E52,C
+893,1,Edward Mr. Williams,male,47,0,0,113796,43.38316529,,S
+894,3,Ella Mrs. Brown,female,21,1,1,,13.18401399,,S
+895,3,Grace Mrs. Williams,female,30,0,0,,8.694805595,,
+896,3,Nellie Mrs. Smith,female,10,5,2,,47.73594325,,
+897,1,Frank Mr. Moore,male,54,1,0,,60.32927962,,C
+898,3,William Mr. Brown,male,,0,0,SOTON/O.Q. 3101314,8.216365258,,S
+899,3,Henry Mr. Moore,male,,0,0,,8.854072801,,S
+900,3,Liehar Mr. Brown,male,36,0,0,,8.218936589,,S
+901,3,George Mr. Johnson,male,,0,0,,7.822551448,,C
+902,3,Edward Mr. Taylor,male,,0,0,32302,9.04819,,S
+903,2,Joseph Mr. Jones,male,26,0,0,,13.89994301,,S
+904,1,Sarah Mrs. Moore,female,47,1,3,PC 17608,273.2778322,B57 B59 B63 B66,C
+905,3,Babala Mrs. Johnson,female,37,0,2,350405,13.06019064,,S
+906,3,Elizabeth Mrs. Jones,female,23,0,0,,40.58268005,,S
+907,1,Babala Mrs. Davis,female,39,0,0,24160,220.1483796,,S
+908,1,Frank Mr. Jones,male,46,0,0,,26.78425682,,S
+909,1,Mary Mrs. Brown,female,22,0,1,112378,60.29645696,,C
+910,2,John Mr. Smith,male,18,0,0,,74.05683937,,S
+911,1,Laura Mrs. Johnson,female,51,0,1,,40.13695607,D28,S
+912,2,Emma Mrs. Taylor,female,,0,0,,21.57521613,,S
+913,3,Elizabeth Mrs. Williams,female,16,1,1,,9.33826186,,C
+914,3,Robert Mr. Taylor,male,31,0,0,,23.37157887,,S
+915,2,James Mr. Williams,male,24,2,0,,32.23657134,,S
+916,2,Emma Mrs. Jones,female,49,0,2,C.A. 33112,37.38858057,,S
+917,3,Frank Mr. Jones,male,,0,0,,8.012250256,,C
+918,3,John Mr. Williams,male,28,0,0,,8.69887823,,S
+919,2,Elizabeth Mrs. Williams,female,30,0,0,,21.55935244,,S
+920,3,Elizabeth Mrs. Williams,female,17.5,0,0,,7.912120984,,Q
+921,3,Edward Mr. Brown,male,32,0,0,,8.831455499,,S
+922,3,Mary Mrs. Williams,female,22,0,0,,8.619006393,,S
+923,3,Jyoroto Mr. Williams,male,,1,1,,15.40626686,,S
+924,2,Henry Mr. Wilson,male,41,0,0,,13.5910993,,S
+925,3,Babala Mrs. Moore,female,,1,0,370371,16.29748824,,Q
+926,2,Mary Mrs. Wilson,female,13,2,1,,39.5569523,F4,S
+927,2,William Mr. Smith,male,30,1,0,CA 31352,21.71981554,,S
+928,3,Frank Mr. Smith,male,,0,0,,8.719806956,,S
+929,3,Grace Mrs. Davis,female,,0,0,,8.673244963,,Q
+930,3,Laura Mrs. Brown,female,20,1,1,,16.41986784,,C
+931,3,Robert Mr. Johnson,male,36,0,0,,8.432999346,,S
+932,1,Anna Mrs. Miller,female,31,0,0,16966,144.0069932,E39 E41,C
+933,3,George Mr. Davis,male,27,0,0,,8.431419682,,S
+934,1,Henry Mr. Johnson,male,46,1,1,,145.8918757,E34,C
+935,3,Robert Mr. Johnson,male,12.5,1,1,,15.38563685,,S
+936,3,Henry Mr. Johnson,male,21,0,0,345501,8.471054523,,S
+937,1,Charles Mr. Taylor,male,,0,0,,26.83229337,,S
+938,3,Laura Mrs. Johnson,female,,0,0,,8.53432249,,Q
+939,1,Charles Mr. Wilson,male,,0,0,,0.730589824,,S
+940,3,Robert Mr. Brown,male,,0,0,,7.892239456,,S
+941,2,Liehar Mr. Taylor,male,20,0,0,,11.09478217,,S
+942,3,Mike Mr. Miller,male,5,4,2,,32.27348273,,S
+943,3,Emma Mrs. Wilson,female,18,0,0,,8.830108318,,Q
+944,3,Liehar Mr. Williams,male,20,0,0,,8.787598522,,S
+945,2,Henry Mr. Moore,male,25,0,0,248726,14.46782525,,S
+946,3,Sarah Mrs. Davis,female,9,1,1,2650,16.23096375,,C
+947,3,Elizabeth Mrs. Smith,female,,0,0,,8.273935872,,Q
+948,1,Laura Mrs. Wilson,female,56,0,0,,28.59648983,,C
+949,1,Sarah Mrs. Jones,female,18,1,0,,60.59895669,C31,S
+950,1,Laura Mrs. Brown,female,43,1,0,,55.99635037,C116,C
+951,3,Margaret Mrs. Miller,female,,0,0,,15.46906469,,S
+952,1,Charles Mr. Davis,male,48,0,0,PC 17591,51.49446,B10,C
+953,2,William Mr. Jones,male,28,0,0,,14.71374732,,C
+954,3,James Mr. Moore,male,23,1,0,347072,14.57351726,,S
+955,3,Elizabeth Mrs. Wilson,female,,0,0,,8.992152316,,S
+956,3,Nellie Mrs. Taylor,female,22,0,0,,9.610619626,,S
+957,3,Jyoroto Mr. Brown,male,32,0,0,,8.251512722,,S
+958,3,Ella Mrs. Williams,female,,0,0,,9.04623221,,S
+959,1,Emma Mrs. Williams,female,46,0,1,112378,60.39035954,,C
+960,3,Frank Mr. Williams,male,,1,1,,23.15005472,,C
+961,3,John Mr. Smith,male,,0,0,,7.061854151,,C
+962,3,Liehar Mr. Williams,male,,0,0,LP 1588,8.225030072,,S
+963,2,Mike Mr. Wilson,male,,0,0,,16.56664771,,C
+964,1,Edward Mr. Williams,male,49,0,0,,26.78255241,,S
+965,3,Mike Mr. Jones,male,14,0,0,7538,9.867225403,,S
+966,3,Mike Mr. Williams,male,6,1,1,,15.95926153,,C
+967,3,Henry Mr. Jones,male,17,0,0,,9.204509453,,S
+968,3,Mike Mr. Williams,male,,1,2,,24.18386834,,S
+969,3,Babala Mrs. Williams,female,23,0,0,,8.500806524,,Q
+970,1,Babala Mrs. Johnson,female,34,0,0,,159.1491513,,S
+971,3,William Mr. Davis,male,26,0,0,,9.338796546,,S
+972,3,Emma Mrs. Johnson,female,35,0,0,,8.343738037,,Q
+973,2,Margaret Mrs. Johnson,female,24,1,2,,65.8797768,,S
+974,2,Mike Mr. Miller,male,,0,0,240261,11.46909658,,Q
+975,1,Grace Mrs. Brown,female,24,0,1,,83.78462904,C54,C
+976,3,James Mr. Moore,male,39.5,0,0,,15.71903521,,S
+977,1,Nellie Mrs. Moore,female,28,3,2,,272.3768332,C23 C25 C27,S
+978,3,Laura Mrs. Williams,female,23,0,0,334914,8.704320342,,Q
+979,1,Joseph Mr. Smith,male,35,0,0,,75.86051201,C6,C
+980,3,John Mr. Taylor,male,,0,0,,8.43143454,,S
+981,3,Emma Mrs. Davis,female,27,1,0,,8.802765802,,S
+982,2,James Mr. Moore,male,38,1,0,28664,21.87301397,,S
+983,1,Joseph Mr. Williams,male,64,1,0,,75.93238518,D37,C
+984,3,Joseph Mr. Williams,male,0.33,0,2,,15.22905994,,S
+985,3,Ella Mrs. Johnson,female,18,0,0,,8.412459746,,S
+986,1,Frank Mr. Jones,male,14,2,2,,274.4148813,B57 B59 B63 B66,C
+987,3,Mary Mrs. Wilson,female,,0,0,364856,8.261916935,,Q
+988,2,James Mr. Davis,male,49,1,0,,26.50201044,,S
+989,3,Henry Mr. Williams,male,42,0,0,349226,8.864233321,,S
+990,3,Henry Mr. Wilson,male,17,2,0,,8.818989255,,S
+991,3,Henry Mr. Johnson,male,,0,0,,57.11864269,,S
+992,2,James Mr. Davis,male,26,0,0,244368,13.71067339,F2,S
+993,3,Jyoroto Mr. Miller,male,26.5,0,0,,7.756322186,,C
+994,1,Elizabeth Mrs. Williams,female,60,1,4,,273.8364037,C23 C25 C27,S
+995,3,John Mr. Williams,male,26,0,0,,8.524825642,,S
+996,2,Robert Mr. Johnson,male,31,1,1,,26.75546528,,S
+997,3,Jyoroto Mr. Davis,male,6,3,1,,21.66978884,,S
+998,1,Liehar Mr. Taylor,male,39,0,0,,30.46238654,A18,
+999,1,Babala Mrs. Moore,female,63,1,0,,235.7577088,C55 C57,S
+1000,3,Joseph Mr. Moore,male,25,0,0,,9.568969568,,S
+1001,3,James Mr. Taylor,male,,2,0,,22.3381303,,C
+1002,3,John Mr. Wilson,male,61.5,0,0,,,,S
+1003,2,Sarah Mrs. Davis,female,21,0,1,,21.64402247,,S
+1004,3,Laura Mrs. Miller,female,16,0,0,,8.447782813,,S
+1005,3,William Mr. Taylor,male,,0,0,,8.523795959,,S
+1006,3,Liehar Mr. Taylor,male,34.5,0,0,,8.535040003,,Q
+1007,2,Charles Mr. Smith,male,18,0,0,C.A. 15185,11.45393334,,S
+1008,2,Robert Mr. Johnson,male,29,0,0,,11.04456453,,S
+1009,3,Joseph Mr. Taylor,male,36,0,0,345771,10.28591249,,S
+1010,3,Frank Mr. Taylor,male,,0,0,,8.424682545,,Q
+1011,1,Mary Mrs. Smith,female,22,1,0,,82.90925931,B45,S
+1012,2,Nellie Mrs. Moore,female,31,1,0,,14.48053322,,C
+1013,1,John Mr. Johnson,male,60,1,3,,272.0565982,B57 B59 B63 B66,
+1014,2,Nellie Mrs. Taylor,female,20,1,0,,26.59919421,,S
+1015,1,Mary Mrs. Taylor,female,45,1,0,11753,53.51413489,D19,S
+1016,3,George Mr. Wilson,male,,1,0,,16.759143,,S
+1017,3,Elizabeth Mrs. Smith,female,,0,0,,8.640874347,,Q
+1018,2,Mary Mrs. Brown,female,12,0,0,,16.55790916,,S
+1019,1,Emma Mrs. Moore,female,26,1,0,,56.41028262,E50,C
+1020,3,Mary Mrs. Taylor,female,23,0,0,,9.429779389,,S
+1021,3,Mary Mrs. Taylor,female,0.17,1,2,,21.40897212,,S
+1022,2,Anna Mrs. Wilson,female,1,1,2,,42.16588365,,
+1023,1,Charles Mr. Davis,male,54,0,0,,29.28618639,C51,C
+1024,3,William Mr. Williams,male,27,0,0,,9.324101679,,S
+1025,1,Anna Mrs. Davis,female,59,0,0,,76.81706852,D15,C
+1026,1,James Mr. Moore,male,29,0,0,,46.10839521,,S
+1027,2,Babala Mrs. Williams,female,20,0,0,,37.65262855,,S
+1028,2,Anna Mrs. Williams,female,36,0,3,,39.97986244,F4,S
+1029,3,Edward Mr. Brown,male,24,0,0,,8.767876863,,S
+1030,3,Frank Mr. Wilson,male,,0,0,,8.639321027,,S
+1031,2,George Mr. Jones,male,29,0,0,,13.94010018,,
+1032,3,Anna Mrs. Smith,female,,0,2,,16.16139345,,C
+1033,3,Edward Mr. Moore,male,40,1,6,,47.72239291,,S
+1034,1,James Mr. Brown,male,50,1,1,113503,224.3915228,C80,C
+1035,3,Robert Mr. Smith,male,16,0,0,,9.432108968,,S
+1036,1,Grace Mrs. Moore,female,23,0,1,113509,62.88475696,B36,C
+1037,3,Mike Mr. Taylor,male,21,0,0,,8.546846282,,Q
+1038,3,Nellie Mrs. Taylor,female,25,0,2,,14.62426923,,S
+1039,2,George Mr. Wilson,male,62,0,0,,10.21817333,,Q
+1040,2,George Mr. Davis,male,17.5,0,0,248734,13.6676251,F,S
+1041,3,Liehar Mr. Smith,male,25,0,0,,8.524238277,,S
+1042,3,Edward Mr. Davis,male,,0,0,,8.563008727,,S
+1043,1,Frank Mr. Brown,male,30,1,0,,58.60254934,C78,C
+1044,3,John Mr. Wilson,male,,0,0,,8.203175065,,C
+1045,2,William Mr. Johnson,male,31,0,0,,13.74199257,,S
+1046,2,James Mr. Moore,male,48,1,2,,65.80168214,,
+1047,1,Sarah Mrs. Moore,female,49,1,1,,79.81067694,B41,C
+1048,3,Sarah Mrs. Johnson,female,3,1,1,,14.75981531,,S
+1049,3,Jyoroto Mr. Jones,male,22,0,0,2658,8.018239153,,C
+1050,1,Charles Mr. Johnson,male,6,0,2,,148.0276659,E34,
+1051,3,Jyoroto Mr. Smith,male,20,1,0,,7.227968791,,S
+1052,3,Laura Mrs. Davis,female,20,0,0,315087,9.254201891,,S
+1053,1,Nellie Mrs. Williams,female,27,1,1,PC 17558,256.89045,B58 B60,C
+1054,3,Babala Mrs. Jones,female,36,0,0,,8.665787141,,Q
+1055,1,Mike Mr. Wilson,male,42,0,0,,27.51980253,,S
+1056,3,Babala Mrs. Williams,female,29,0,0,,7.779386651,,Q
+1057,2,Grace Mrs. Johnson,female,22,0,0,,21.54878248,,S
+1058,3,Frank Mr. Davis,male,,2,0,,22.39916487,,C
+1059,3,Robert Mr. Smith,male,23,0,0,,7.997040623,,Q
+1060,3,Anna Mrs. Taylor,female,25,0,0,,8.414139017,,
+1061,1,Charles Mr. Taylor,male,53,1,1,33638,82.40086581,A34,S
+1062,2,Liehar Mr. Smith,male,42,1,1,,33.28057027,,S
+1063,1,Henry Mr. Davis,male,31,1,2,,158.5173179,C22 C26,S
+1064,1,Joseph Mr. Taylor,male,42,0,0,,27.08168157,D22,S
+1065,3,Mike Mr. Davis,male,,0,0,3470,8.635225109,,S
+1066,3,Edward Mr. Johnson,male,30,0,0,,8.619101274,,S
+1067,3,Liehar Mr. Johnson,male,30,0,0,,8.604726572,,
+1068,3,Babala Mrs. Davis,female,,1,2,,24.37049597,,S
+1069,1,Liehar Mr. Taylor,male,46,0,0,,30.21933364,A9,
+1070,3,Henry Mr. Moore,male,,0,0,,8.567547233,,Q
+1071,1,Margaret Mrs. Williams,female,47,1,0,,61.94915175,E31,S
+1072,1,Edward Mr. Smith,male,32.5,0,0,,217.1215534,C132,C
+1073,3,Joseph Mr. Taylor,male,22,2,0,A/4 48871,25.11152499,,S
+1074,3,Anna Mrs. Johnson,female,30,0,0,,8.188203879,,Q
+1075,3,Frank Mr. Johnson,male,20,0,0,349211,8.77124421,,S
+1076,3,Nellie Mrs. Smith,female,,8,2,CA. 2343,70.35113706,,S
+1077,2,Nellie Mrs. Moore,female,0.92,1,2,,28.66337054,,S
+1078,3,Mary Mrs. Wilson,female,38,4,2,,8.412215871,,S
+1079,2,Emma Mrs. Miller,female,19,1,1,,13.80026615,,S
+1080,1,Henry Mr. Smith,male,42,0,0,113054,31.06998555,A21,S
+1081,2,Frank Mr. Miller,male,28,1,0,,26.64014069,,S
+1082,2,Charles Mr. Williams,male,22,0,0,,13.9058425,,S
+1083,3,Liehar Mr. Miller,male,40,0,2,,8.0953093,,C
+1084,3,James Mr. Moore,male,,1,0,,15.28028712,,C
+1085,3,James Mr. Moore,male,10,4,1,,30.05080207,,Q
+1086,3,William Mr. Jones,male,23,0,0,,8.686146787,,
+1087,3,Mary Mrs. Jones,female,17,0,0,,8.024542584,,C
+1088,3,Margaret Mrs. Taylor,female,19,1,0,,16.70053727,,S
+1089,2,Anna Mrs. Davis,female,61,1,0,,26.80596871,,S
+1090,3,George Mr. Jones,male,22,0,0,350045,8.793814346,,S
+1091,1,Anna Mrs. Miller,female,21,0,0,,27.06111647,,S
+1092,1,John Mr. Davis,male,68,1,0,PC 17483,233.0866962,C55 C57,S
+1093,3,Anna Mrs. Johnson,female,,0,0,,8.365750037,,Q
+1094,2,Mike Mr. Moore,male,8,0,2,,33.47921014,,S
+1095,3,John Mr. Jones,male,,0,0,,7.82870019,,S
+1096,3,Mary Mrs. Taylor,female,46,1,0,,14.67820318,,S
+1097,3,Babala Mrs. Smith,female,,0,0,330968,8.686262255,,Q
+1098,3,Grace Mrs. Wilson,female,1,1,1,,12.79605901,,S
+1099,2,Grace Mrs. Smith,female,29,0,2,,23.88771591,,S
+1100,3,Edward Mr. Smith,male,31,0,0,,8.918851008,,S
+1101,3,Edward Mr. Jones,male,,0,0,345498,8.77367254,,S
+1102,2,Mike Mr. Johnson,male,25,0,0,,11.28987753,,S
+1103,3,Anna Mrs. Davis,female,21,2,0,315152,9.218515306,,S
+1104,3,Charles Mr. Miller,male,29,0,0,C 4001,23.21890618,,S
+1105,3,James Mr. Jones,male,22,0,0,,8.688689686,,Q
+1106,3,George Mr. Wilson,male,21.5,0,0,,7.825194108,,C
+1107,3,George Mr. Smith,male,23,0,0,7266,10.00926517,,S
+1108,3,William Mr. Moore,male,27,0,0,349202,8.879803673,,S
+1109,2,Robert Mr. Smith,male,24,0,0,,11.2771726,,S
+1110,2,Joseph Mr. Davis,male,33,0,0,,14.23225655,,
+1111,1,Nellie Mrs. Williams,female,,0,0,17770,28.52586991,,C
+1112,1,Charles Mr. Moore,male,30,0,0,110469,26.51585028,C106,S
+1113,2,Sarah Mrs. Miller,female,26,0,0,,14.25288149,,S
+1114,3,George Mr. Jones,male,18,0,0,,8.74247555,,S
+1115,3,Ella Mrs. Wilson,female,1,1,1,,17.61422246,G6,
+1116,3,Joseph Mr. Brown,male,9,0,1,,4.159570298,,S
+1117,3,John Mr. Taylor,male,,0,0,,8.552287315,,
+1118,1,Edward Mr. Taylor,male,57,1,0,,155.5282929,B78,C
+1119,3,John Mr. Williams,male,,1,0,,7.010057781,,C
+1120,1,Nellie Mrs. Moore,female,59,0,1,,521.2541857,B51 B53 B55,C
+1121,3,Mary Mrs. Jones,female,26,0,0,,8.485699635,,Q
+1122,3,Liehar Mr. Williams,male,31,3,0,,18.73025446,,S
+1123,1,Elizabeth Mrs. Smith,female,53,0,0,,28.02787374,,C
+1124,3,Henry Mr. Johnson,male,21,0,0,,8.727461971,,S
+1125,3,Anna Mrs. Smith,female,45,0,0,,8.099961987,,C
+1126,2,Robert Mr. Moore,male,23,1,0,28666,11.06203616,,S
+1127,3,Jyoroto Mr. Moore,male,22,0,0,350054,8.347382917,,S
+1128,1,Grace Mrs. Williams,female,34,0,0,,218.2959044,C130,C
+1129,2,Edward Mr. Taylor,male,2,1,1,,23.98809097,,
+1130,1,Sarah Mrs. Wilson,female,47,1,0,,114.5383781,C86,C
+1131,3,William Mr. Moore,male,,1,9,CA. 2343,70.20365516,,S
+1132,2,John Mr. Wilson,male,30,0,0,,13.56379796,,
+1133,2,Ella Mrs. Williams,female,21,2,1,29105,23.77213026,,S
+1134,3,John Mr. Moore,male,17.5,0,0,,8.005729192,,C
+1135,3,Babala Mrs. Smith,female,,2,0,,24.15179214,,Q
+1136,3,Emma Mrs. Williams,female,,0,0,334915,8.70140174,,Q
+1137,2,George Mr. Williams,male,23,2,0,,32.44079805,,
+1138,2,Mary Mrs. Williams,female,23,1,1,,37.88384161,,C
+1139,3,Mike Mr. Moore,male,18,2,2,,35.28449024,,S
+1140,2,James Mr. Miller,male,30,1,0,,26.90284989,,S
+1141,1,Laura Mrs. Wilson,female,44,0,1,,64.32543805,D10 D12,
+1142,3,Robert Mr. Jones,male,13,4,2,,32.37103921,,
+1143,3,John Mr. Miller,male,,0,0,,8.644049692,,S
+1144,1,Frank Mr. Jones,male,24,0,0,12749,94.1039092,B24,S
+1145,3,Robert Mr. Brown,male,27,0,0,,8.057079027,,C
+1146,1,Anna Mrs. Brown,female,18,1,0,,54.0259382,D30,S
+1147,2,Robert Mr. Brown,male,26,0,0,,13.88581979,,
+1148,1,Grace Mrs. Taylor,female,,0,0,PC 17598,32.62484847,,S
+1149,3,Joseph Mr. Williams,male,26,0,0,,8.06972363,F E57,C
+1150,3,Joseph Mr. Jones,male,,1,0,,15.37320268,,C
+1151,1,Liehar Mr. Brown,male,,0,0,,40.52659884,,S
+1152,2,Anna Mrs. Miller,female,28,1,0,,26.83501683,,S
+1153,1,James Mr. Williams,male,54,1,0,,56.41169844,C116,C
+1154,2,Ella Mrs. Taylor,female,18,0,0,,13.98233206,,S
+1155,3,Mary Mrs. Wilson,female,46,1,0,363272,7.752279312,,S
+1156,3,James Mr. Brown,male,38,0,1,,14.02497503,,C
+1157,1,Liehar Mr. Brown,male,28,1,0,,142.4988513,C89,C
+1158,3,Joseph Mr. Moore,male,24,0,0,,8.266062202,,S
+1159,1,Henry Mr. Brown,male,39,1,0,PC 17599,71.83633877,C85,C
+1160,3,William Mr. Davis,male,37.5,0,0,,7.99879033,,S
+1161,3,Elizabeth Mrs. Wilson,female,20,0,0,,8.844090545,,S
+1162,1,Joseph Mr. Smith,male,29.5,0,0,,28.35755492,D43,
+1163,3,Laura Mrs. Jones,female,,0,0,,8.445339995,,Q
+1164,3,Nellie Mrs. Taylor,female,,0,4,,26.27437684,,S
+1165,2,Nellie Mrs. Taylor,female,29,1,0,,26.81055134,,S
+1166,3,Margaret Mrs. Smith,female,25,1,1,,22.97731491,,S
+1167,1,Emma Mrs. Davis,female,55,0,0,PC 17760,143.0030592,C32,C
+1168,3,William Mr. Johnson,male,39,1,5,,32.13980117,,S
+1169,1,Laura Mrs. Smith,female,36,1,0,13236,58.6937872,C28,C
+1170,3,Mike Mr. Smith,male,37.5,1,0,,18.36373714,,S
+1171,1,William Mr. Williams,male,25,0,0,13905,26.62995154,,C
+1172,3,Laura Mrs. Johnson,female,30,1,0,,16.35566332,,
+1173,3,Henry Mr. Johnson,male,49,1,0,,15.21748866,,S
+1174,2,John Mr. Jones,male,22,0,0,29107,12.09846995,,S
+1175,3,James Mr. Brown,male,0.75,1,1,,14.38082595,,S
+1176,1,Joseph Mr. Brown,male,22,0,1,PC 17597,61.95328525,,C
+1177,3,Ella Mrs. Miller,female,38,0,0,2688,7.834637221,,C
+1178,3,James Mr. Brown,male,23,0,0,,8.826330836,,S
+1179,3,George Mr. Smith,male,,0,0,,8.714634929,,Q
+1180,3,James Mr. Moore,male,22,0,0,,8.737201586,,S
+1181,3,John Mr. Williams,male,29,0,0,,8.792721817,,S
+1182,3,Nellie Mrs. Brown,female,33,1,2,,21.23400608,,S
+1183,3,James Mr. Williams,male,41,0,0,,8.611493503,,S
+1184,1,Charles Mr. Johnson,male,17,0,0,,48.0367713,,S
+1185,2,Jyoroto Mr. Brown,male,41,0,0,,15.72387663,,C
+1186,3,James Mr. Johnson,male,,0,0,,8.439186654,,C
+1187,3,Robert Mr. Brown,male,26,0,0,345768,10.47431354,,S
+1188,1,Robert Mr. Moore,male,45,0,0,,79.9361152,,C
+1189,1,Ella Mrs. Wilson,female,26,1,2,,52.56160076,B71,S
+1190,3,John Mr. Brown,male,,0,0,,8.368192214,,
+1191,3,Edward Mr. Taylor,male,24,0,0,,8.047413149,,S
+1192,1,Emma Mrs. Miller,female,29,0,0,,179.5674014,C7,S
+1193,1,Joseph Mr. Davis,male,,0,0,,27.38719412,,
+1194,3,Sarah Mrs. Miller,female,18,0,0,,8.934349063,,S
+1195,3,William Mr. Jones,male,24,0,0,,8.474883957,F G63,S
+1196,3,Elizabeth Mrs. Jones,female,28,0,0,,8.396232332,,S
+1197,3,Robert Mr. Jones,male,19,1,0,,15.40370022,,C
+1198,2,Jyoroto Mr. Taylor,male,20,1,0,,12.4218807,,
+1199,3,John Mr. Moore,male,,0,0,,9.545801608,,S
+1200,2,William Mr. Smith,male,58,0,0,,13.81469411,,S
+1201,1,Margaret Mrs. Williams,female,56,2,0,,26.44795399,C101,S
+1202,2,Nellie Mrs. Smith,female,31,0,0,,21.70452907,,
+1203,1,Sarah Mrs. Davis,female,60,2,0,,52.35971816,C101,S
+1204,2,Charles Mr. Jones,male,36,0,0,,12.85359387,,Q
+1205,2,George Mr. Wilson,male,26,0,0,C.A. 34050,11.15657984,,S
+1206,3,Charles Mr. Taylor,male,,0,0,,8.437140592,,S
+1207,3,Charles Mr. Smith,male,27,0,0,,8.435909807,,Q
+1208,1,Emma Mrs. Taylor,female,76,1,0,,79.79013719,C46,S
+1209,2,Jyoroto Mr. Smith,male,23,0,0,,11.48803982,,S
+1210,1,Robert Mr. Wilson,male,55,1,1,,94.37908652,B69,S
+1211,1,Anna Mrs. Johnson,female,49,1,1,,220.4511099,C80,C
+1212,3,Babala Mrs. Taylor,female,,1,9,,70.35858368,,S
+1213,2,Liehar Mr. Brown,male,39,1,0,,26.82227018,,S
+1214,2,Mike Mr. Davis,male,47,0,0,,11.43042696,,S
+1215,3,James Mr. Williams,male,32,0,0,,8.393868607,,S
+1216,3,Emma Mrs. Johnson,female,22,1,0,,14.64082242,,S
+1217,3,William Mr. Davis,male,,0,0,7935,8.329024892,,Q
+1218,1,Margaret Mrs. Wilson,female,29,0,0,,229.6798218,C97,S
+1219,3,Jyoroto Mr. Miller,male,,0,0,,8.702022301,,S
+1220,1,Emma Mrs. Miller,female,64,1,1,112901,27.31009076,B26,S
+1221,1,Frank Mr. Moore,male,25,1,0,,60.72234025,C31,S
+1222,1,Charles Mr. Smith,male,48,0,0,,0.75770919,B52 B54 B56,S
+1223,3,Henry Mr. Smith,male,,0,0,,8.992531198,,S
+1224,1,Emma Mrs. Miller,female,37,1,0,,90.60855798,C78,Q
+1225,2,Liehar Mr. Williams,male,16,0,0,S.O.C. 14879,74.44963648,,S
+1226,2,Henry Mr. Brown,male,29,0,0,,26.79367459,,S
+1227,2,William Mr. Jones,male,32,0,0,,13.73508906,,S
+1228,3,Emma Mrs. Moore,female,17,0,0,,8.304298569,,Q
+1229,1,Nellie Mrs. Smith,female,53,1,1,,82.4037044,A34,
+1230,3,Grace Mrs. Taylor,female,2,1,1,,20.87184518,,S
+1231,2,Henry Mr. Wilson,male,,0,0,237735,15.55802612,D,C
+1232,2,William Mr. Miller,male,60,0,0,,13.24133182,,Q
+1233,3,Liehar Mr. Davis,male,22,0,0,,8.987320116,,S
+1234,3,Laura Mrs. Taylor,female,,1,0,2660,15.0234271,,C
+1235,3,Mike Mr. Miller,male,30,3,1,,22.86657939,,S
+1236,1,Nellie Mrs. Smith,female,32,0,0,PC 17613,28.39365689,A11,C
+1237,3,George Mr. Wilson,male,0.83,0,1,,10.04785961,,S
+1238,2,Frank Mr. Miller,male,25,0,0,,32.42035398,,S
+1239,3,William Mr. Moore,male,21,0,0,342684,8.911214048,,S
+1240,2,Jyoroto Mr. Smith,male,,0,0,SC/PARIS 2159,13.69046718,,S
+1241,3,Liehar Mr. Taylor,male,,0,0,,7.8558441,,C
+1242,1,Margaret Mrs. Taylor,female,27,1,0,,146.6571983,C89,C
+1243,2,Charles Mr. Jones,male,39,0,0,239059,16.6604009,,S
+1244,3,Henry Mr. Jones,male,7,1,1,,16.16825012,,C
+1245,2,James Mr. Brown,male,28,0,0,,15.62528975,,C
+1246,3,Joseph Mr. Johnson,male,,0,0,,8.89404657,,S
+1247,3,Robert Mr. Taylor,male,14.5,8,2,CA. 2343,70.45052779,,S
+1248,3,Liehar Mr. Brown,male,,0,0,,8.735166538,,Q
+1249,2,George Mr. Williams,male,40,0,0,,13.74863918,,S
+1250,2,Mike Mr. Johnson,male,14,0,0,220845,65.70276498,,S
+1251,1,William Mr. Wilson,male,57,1,1,,178.856216,,S
+1252,1,William Mr. Williams,male,50,0,0,,26.63846317,E60,S
+1253,3,Joseph Mr. Davis,male,,0,0,,8.004369751,,C
+1254,1,Charles Mr. Jones,male,46,0,0,,76.23853981,C6,C
+1255,3,Edward Mr. Johnson,male,,0,0,2655,8.051628287,F E46,C
+1256,3,Margaret Mrs. Brown,female,,0,0,,8.899753546,,S
+1257,3,Anna Mrs. Miller,female,17,0,1,,17.02554622,,S
+1258,1,Edward Mr. Miller,male,,0,0,,26.4860861,,C
+1259,3,Edward Mr. Brown,male,21,0,0,,8.120527105,,C
+1260,2,Anna Mrs. Wilson,female,22,0,0,,11.48135605,F33,
+1261,1,Robert Mr. Wilson,male,42,1,0,,28.70594479,D40,C
+1262,2,Jyoroto Mr. Davis,male,25,1,1,,29.917885,,S
+1263,3,Charles Mr. Johnson,male,14,0,2,,21.10833147,,
+1264,2,Joseph Mr. Smith,male,44,0,0,,13.77118229,,S
+1265,2,William Mr. Jones,male,41,0,0,,13.68315864,,S
+1266,1,Liehar Mr. Davis,male,55,0,0,,50.91795707,C39,S
+1267,3,Anna Mrs. Moore,female,35,0,2,C.A. 37671,16.85308837,,S
+1268,1,Sarah Mrs. Williams,female,35,0,0,,32.49454568,A29,C
+1269,3,John Mr. Moore,male,26,0,0,,8.717186473,,S
+1270,1,Ella Mrs. Wilson,female,44,0,0,,276.2017656,,C
+1271,3,John Mr. Davis,male,20,0,0,,8.573198797,,S
