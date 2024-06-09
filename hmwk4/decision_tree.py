@@ -29,7 +29,7 @@ def preprocess_data(file_path):
 
 # 决策树实现
 class SimpleDecisionTree:
-    def __init__(self, max_depth=3):
+    def __init__(self, max_depth=7):
         self.max_depth = max_depth
         self.tree = None
 
