@@ -1,86 +1,141 @@
-import numpy as np
-import pandas as pd
 import os
+import pandas as pd
+import numpy as np
 
 
+# 读取和预处理数据
+def preprocess_data(file_path):
+    data = pd.read_csv(file_path)
+    
+    # 删除无关特征
+    data.drop(columns=["PassengerId", "Name", "Ticket", "Fare", "Cabin"], inplace=True)
+
+    # 填充缺失值
+    data["Age"].fillna(data["Age"].mean(), inplace=True)
+    data["Embarked"].fillna("S", inplace=True)
+
+    # 编码分类特征
+    data["Sex"] = data["Sex"].map({"male": 0, "female": 1})
+    data["Embarked"] = data["Embarked"].map({"S": 0, "C": 1, "Q": 2})
+
+    # 分箱处理连续数据Age
+    # 如果年龄小于1，设为0-1岁区间；其他年龄分成多个区间
+    bins = [0, 1, 12, 20, 40, 60, 80]
+    labels = [0, 1, 2, 3, 4, 5]
+    data["Age"] = pd.cut(data["Age"], bins=bins, labels=labels, right=False)
+
+    return data
+
+
+# 决策树实现
+class SimpleDecisionTree:
+    def __init__(self, max_depth=3):
+        self.max_depth = max_depth
+        self.tree = None
+
+    def fit(self, X, y):
+        self.tree = self._grow_tree(X, y, depth=0)
+
+    def _grow_tree(self, X, y, depth):
+        num_samples, num_features = X.shape
+        if depth >= self.max_depth or num_samples <= 1:
+            return np.round(np.mean(y))
+
+        # 寻找最佳分割点
+        best_feature, best_threshold = self._best_split(X, y, num_samples, num_features)
+        if best_feature is None:
+            return np.round(np.mean(y))
+
+        indices_left = X[:, best_feature] < best_threshold
+        left_subtree = self._grow_tree(X[indices_left], y[indices_left], depth + 1)
+        right_subtree = self._grow_tree(X[~indices_left], y[~indices_left], depth + 1)
+        return (best_feature, best_threshold, left_subtree, right_subtree)
+
+    def _best_split(self, X, y, num_samples, num_features):
+        best_gain = -1
+        split_idx, split_threshold = None, None
+        for feature_idx in range(num_features):
+            thresholds, classes = zip(*sorted(zip(X[:, feature_idx], y)))
+            num_left = [0] * 2
+            num_right = [np.sum(y == 0), np.sum(y == 1)]
+            for i in range(1, num_samples):
+                c = classes[i - 1]
+                num_left[c] += 1
+                num_right[c] -= 1
+                gain = self._information_gain(y, classes, num_left, num_right)
+                if thresholds[i] == thresholds[i - 1]:
+                    continue
+                if gain > best_gain:
+                    best_gain = gain
+                    split_idx = feature_idx
+                    split_threshold = (thresholds[i] + thresholds[i - 1]) / 2
+        return split_idx, split_threshold
+
+    def _information_gain(self, y, classes, num_left, num_right):
+        p = len(classes)
+        p_left = sum(num_left) / p
+        p_right = sum(num_right) / p
+
+        if p_left == 0 or p_right == 0:
+            return 0
+
+        h = self._entropy(classes)
+        h_left = self._entropy(
+            [cls for idx, cls in enumerate(classes) if idx < sum(num_left)]
+        )
+        h_right = self._entropy(
+            [cls for idx, cls in enumerate(classes) if idx >= sum(num_left)]
+        )
+
+        return h - (p_left * h_left + p_right * h_right)
+
+    def _entropy(self, y):
+        hist = np.bincount(y)
+        ps = hist / len(y)
+        return -np.sum([p * np.log2(p) for p in ps if p > 0])
+
+    def predict(self, X):
+        return [self._predict(inputs) for inputs in X]
+
+    def _predict(self, inputs):
+        node = self.tree
+        while isinstance(node, tuple):
+            if inputs[node[0]] < node[1]:
+                node = node[2]
+            else:
+                node = node[3]
+        return node
+
+
+# 定义路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
-tree_path = os.path.join(current_dir, "decisionTree.npy")
+train_file_path = os.path.join(current_dir, "train.csv")
+test_file_path = os.path.join(current_dir, "test.csv")
 
+# 预处理数据
+train_data = preprocess_data(train_file_path)
+test_data = preprocess_data(test_file_path)
 
-# 读取数据以及预处理
-def get_data():
-    train_data = pd.read_csv(os.path.join(current_dir, "train.csv"))
-    test_data = pd.read_csv(os.path.join(current_dir, "test.csv"))
-    # 删除不必要特征
-    train_data = train_data.drop(["PassengerId", "Name", "Ticket", "Cabin"], axis=1)
-    test_data = test_data.drop(["PassengerId", "Name", "Ticket", "Cabin"], axis=1)
+# 分离特征和标签
+X_train = train_data.drop(columns=["Survived"])
+y_train = train_data["Survived"]
 
-    # 填充可能有的缺失值
-    train_data["Age"] = train_data["Age"].fillna(train_data["Age"].median())
-    train_data["Fare"] = train_data["Fare"].fillna(train_data["Fare"].median())
-    train_data["Embarked"] = train_data["Embarked"].fillna("S")
+# 构建模型
+model = SimpleDecisionTree(max_depth=3)
+model.fit(X_train.values, y_train.values)
 
-    test_data["Age"] = test_data["Age"].fillna(test_data["Age"].median())
-    test_data["Fare"] = test_data["Fare"].fillna(test_data["Fare"].median())
-    test_data["Embarked"] = test_data["Embarked"].fillna("S")
+# 在训练集上评估模型
+train_predictions = model.predict(X_train.values)
+accuracy = np.mean(train_predictions == y_train.values)
+print(f"Train Accuracy: {accuracy:.2f}")
 
-    # 分类变量转换
-    train_data["Sex"] = train_data["Sex"].map({"male": 0, "female": 1})
-    train_data["Embarked"] = train_data["Embarked"].map({"S": 0, "C": 1, "Q": 2})
+# 对测试集进行预测
+test_predictions = model.predict(test_data.values)
 
-    test_data["Sex"] = test_data["Sex"].map({"male": 0, "female": 1})
-    test_data["Embarked"] = test_data["Embarked"].map({"S": 0, "C": 1, "Q": 2})
+# 将预测结果转换为整数形式
+test_predictions = [int(prediction) for prediction in test_predictions]
 
-    return train_data, test_data
-
-
-# 计算香农熵
-def calEnt(dataSet):
-    n = dataSet.shape[0]  # 总样本数目
-    iset = dataSet["Survived"].value_counts()  # 每个类别的数目
-    p = iset / n  # 概率
-    ent = (-p * np.log2(p)).sum()  # 香农熵
-    return ent
-
-
-def bestFeatureSplit(dataSet):
-    n_feature = dataSet.shape[1]
-    # 计算原始熵
-    cur_entropy = calEnt(dataSet)
-    # 寻找特征划分
-    best_InfoGain = 0  # 最大信息增益
-    best_feature_idx = -1  # 最好特征索引
-
-    for i in range(1, n_feature):
-        featList = dataSet.iloc[:, i].value_counts().index
-        new_entropy = 0
-        for j in featList:
-            child_dataSet = splitDataset(dataSet, i, j)
-            # 加权概率
-            weight = len(child_dataSet) / len(dataSet)
-            # 计算熵
-            new_entropy += calEnt(child_dataSet) * weight
-        infoGain = cur_entropy - new_entropy  # 信息增益
-        if best_InfoGain < infoGain:
-            best_InfoGain = infoGain
-            best_feature_idx = i
-            
-    return best_feature_idx
-
-
-# 根据选中的特征值和唯一值划分数据集
-def splitDataset(dataSet, featureIndex, value):
-    col = dataSet.columns[featureIndex]
-    redataSet = dataSet.loc[dataSet[col] == value, :].drop(col, axis=1)
-    return redataSet
-
-#递归生成树
-def createTree(dataSet,labels,feat_labels):
-    #当前节点的样本标签
-    cur_label_list = dataSet.iloc[:,0].value_counts()
-    
-    
-train_data, test_data = get_data()
-a=train_data.iloc[:,0].value_counts()
-print(len(a))
-print(a.count(a[0]))
+# 保存结果到submission.csv
+submission = pd.read_csv(test_file_path)[["PassengerId"]].copy()
+submission["Survived"] = test_predictions
+submission.to_csv(os.path.join(current_dir, "submission.csv"), index=False)
