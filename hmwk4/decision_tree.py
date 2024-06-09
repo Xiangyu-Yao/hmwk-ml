@@ -29,7 +29,7 @@ def preprocess_data(file_path):
 
 # 决策树实现
 class SimpleDecisionTree:
-    def __init__(self, max_depth=3):
+    def __init__(self, max_depth=7):
         self.max_depth = max_depth
         self.tree = None
 
@@ -38,8 +38,9 @@ class SimpleDecisionTree:
 
     def _grow_tree(self, X, y, depth):
         num_samples, num_features = X.shape
+        #超深度或者样本数小于等于1
         if depth >= self.max_depth or num_samples <= 1:
-            return np.round(np.mean(y))
+            return np.round(np.mean(y))#取平均值并四舍五入
 
         # 寻找最佳分割点
         best_feature, best_threshold = self._best_split(X, y, num_samples, num_features)
