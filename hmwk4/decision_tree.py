@@ -29,7 +29,7 @@ def preprocess_data(file_path):
 
 # 决策树实现
 class SimpleDecisionTree:
-    def __init__(self, max_depth=7):
+    def __init__(self, max_depth=5):
         self.max_depth = max_depth
         self.tree = None
 
@@ -122,7 +122,7 @@ X_train = train_data.drop(columns=["Survived"])
 y_train = train_data["Survived"]
 
 # 构建模型
-model = SimpleDecisionTree(max_depth=3)
+model = SimpleDecisionTree()
 model.fit(X_train.values, y_train.values)
 
 # 在训练集上评估模型
