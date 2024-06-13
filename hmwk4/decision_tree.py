@@ -6,7 +6,7 @@ import numpy as np
 # 读取和预处理数据
 def preprocess_data(file_path):
     data = pd.read_csv(file_path)
-    
+
     # 删除无关特征
     data.drop(columns=["PassengerId", "Name", "Ticket", "Fare", "Cabin"], inplace=True)
 
@@ -38,9 +38,9 @@ class SimpleDecisionTree:
 
     def _grow_tree(self, X, y, depth):
         num_samples, num_features = X.shape
-        #超深度或者样本数小于等于1
+        # 超深度或者样本数小于等于1
         if depth >= self.max_depth or num_samples <= 1:
-            return np.round(np.mean(y))#取平均值并四舍五入
+            return np.round(np.mean(y))  # 取平均值并四舍五入
 
         # 寻找最佳分割点
         best_feature, best_threshold = self._best_split(X, y, num_samples, num_features)
@@ -55,15 +55,21 @@ class SimpleDecisionTree:
     def _best_split(self, X, y, num_samples, num_features):
         best_gain = -1
         split_idx, split_threshold = None, None
+        # 计算特征值的所有可能阈值及其对应的类别
         for feature_idx in range(num_features):
-            thresholds, classes = zip(*sorted(zip(X[:, feature_idx], y)))
+            thresholds, classes = zip(
+                *sorted(zip(X[:, feature_idx], y))
+            )  # 对特征值和目标变量排序
+            # 初始化左右子树的样本数量
             num_left = [0] * 2
             num_right = [np.sum(y == 0), np.sum(y == 1)]
             for i in range(1, num_samples):
                 c = classes[i - 1]
                 num_left[c] += 1
                 num_right[c] -= 1
-                gain = self._information_gain(y, classes, num_left, num_right)
+                gain = self._information_gain(
+                    y, classes, num_left, num_right
+                )  # 信息增益
                 if thresholds[i] == thresholds[i - 1]:
                     continue
                 if gain > best_gain:
@@ -81,18 +87,14 @@ class SimpleDecisionTree:
             return 0
 
         h = self._entropy(classes)
-        h_left = self._entropy(
-            [cls for idx, cls in enumerate(classes) if idx < sum(num_left)]
-        )
-        h_right = self._entropy(
-            [cls for idx, cls in enumerate(classes) if idx >= sum(num_left)]
-        )
+        h_left = self._entropy(classes[: sum(num_left)])
+        h_right = self._entropy(classes[sum(num_left) :])
 
         return h - (p_left * h_left + p_right * h_right)
 
     def _entropy(self, y):
         hist = np.bincount(y)
-        ps = hist / len(y)
+        ps = hist / len(y)  # 各类出现概率
         return -np.sum([p * np.log2(p) for p in ps if p > 0])
 
     def predict(self, X):
