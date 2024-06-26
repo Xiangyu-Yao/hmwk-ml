@@ -1,4 +1,5 @@
 import os
+import sys
 import torch
 import numpy as np
 import torch.nn as nn
@@ -10,18 +11,19 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchmetrics import JaccardIndex
 from tqdm import tqdm
-from torch.cuda.amp import GradScaler
+from torch.cuda.amp import GradScaler,autocast
 from PIL import Image
-from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 import shutil
 import matplotlib.pyplot as plt
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-print("程序开始运行", flush=True)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
+os.environ['PYTHONUNBUFFERED'] = '1'
 
 class SegmentationDataset(Dataset):
     def __init__(self, data_dir, transform=None):
@@ -42,12 +44,12 @@ class SegmentationDataset(Dataset):
         image = image.convert("RGB")
         mask = Image.open(mask_path).convert("L")
 
-        img = np.array(img)
+        image= np.array(image)
         mask = np.array(mask)
 
         if self.transform:
-            augmented = self.transform(image=img, mask=mask)
-            img = augmented["image"]
+            augmented = self.transform(image=image, mask=mask)
+            image = augmented["image"]
             mask = augmented["mask"]
 
         mask = torch.as_tensor(mask, dtype=torch.long)
@@ -59,12 +61,10 @@ def evaluate_model(model, dataloader, criterion):
     logger.info(f"val dataset's length is {len(dataloader)}")
     total_loss = 0
     total_miou = 0
-    miou_metric = JaccardIndex(task="multiclass", num_classes=5, ignore_index=None).to(
-        device
-    )  # 定义mIoU指标
+    miou_metric = JaccardIndex(task="multiclass",num_classes=5, ignore_index=None).to(device)  # 定义mIoU指标
 
     with torch.no_grad():
-        for images, masks in tqdm(dataloader, desc="Validation", leave=False):
+        for images, masks in tqdm(dataloader, desc="Validation", leave=False,file=sys.stdout):
             images = images.to(device)
             masks = masks.to(device)
             outputs = model(images)["out"]
@@ -75,7 +75,6 @@ def evaluate_model(model, dataloader, criterion):
             preds = torch.argmax(outputs, dim=1)
             miou = miou_metric(preds, masks)
             total_miou += miou.item()
-
     avg_loss = total_loss / len(dataloader)
     avg_miou = total_miou / len(dataloader)
 
@@ -106,13 +105,14 @@ def train(
     for epoch in range(num_epochs):
         running_loss = 0.0
         model.train()
-        for images, masks in tqdm(train_loader, desc=f"Epoch {epoch+1}/{num_epochs}"):
+        for images, masks in tqdm(train_loader, desc=f"Epoch {epoch+1}/{num_epochs}",file=sys.stdout):
             images = images.to(device)
             masks = masks.to(device)
 
             optimizer.zero_grad()
-            outputs = model(images)["out"]
-            loss = criterion(outputs, masks)
+            with autocast():
+                outputs = model(images)["out"]
+                loss = criterion(outputs, masks)
 
             scaler.scale(loss).backward()
             # 梯度裁剪
@@ -133,7 +133,7 @@ def train(
 
         # 验证
         val_loss, val_miou = evaluate_model(model, test_loader, criterion)
-        print(f"Val Loss [{epoch+1}/{num_epochs}]: {val_loss}, mIoU: {val_miou}")
+        logger.info(f"Val Loss [{epoch+1}/{num_epochs}]: {val_loss}, mIoU: {val_miou}")
         writer.add_scalar("val_loss", val_loss, epoch)
         writer.add_scalar("miou", val_miou, epoch)
 
@@ -143,13 +143,16 @@ def train(
             best_val_miou = val_miou
             best_epoch = epoch + 1
             torch.save(model.state_dict(), best_model_path)
-            print(
-                f"best val_loss's epoch={epoch}, best_val_Loss={best_val_loss}, best_mIoU={best_val_miou}"
+            logger.info(
+                f"best val_loss's epoch={best_epoch}, best_val_Loss={best_val_loss}, best_mIoU={best_val_miou}"
             )
 
         # 更新学习率
         scheduler.step(val_loss)
-
+        if epoch%5==0:
+            torch.save(model.state_dict(), model_path)
+            logger.info(f"Epoch{epoch},save the models")
+    
     writer.close()
     torch.save(model.state_dict(), model_path)
     logger.info("模型已保存")
@@ -194,15 +197,15 @@ def data_process(dir_path):
                 try:
                     shutil.copy(file_path, dest_path)
                 except Exception:
-                    print(f"Failed to copy file: {file_path}")
+                    logger.info(f"Failed to copy file: {file_path}")
 
                 # 检查文件是否成功复制，如果没有则重试
                 if not os.path.exists(dest_path):
-                    print(f"Retry copying file: {file_path}")
+                    logger.info(f"Retry copying file: {file_path}")
                     try:
                         shutil.copy(file_path, dest_path)
                     except Exception:
-                        print(f"Failed to copy file on retry: {file_path}")
+                        logger.info(f"Failed to copy file on retry: {file_path}")
 
     # 获取merged文件夹中的所有文件名
     file_names = [f for f in os.listdir(merged_path) if f.endswith(".jpg")]
@@ -212,7 +215,7 @@ def data_process(dir_path):
     num_train = int(len(file_names) * train_ratio)
     num_val = len(file_names) - num_train
 
-    print(f"Total files: {len(file_names)}, Train: {num_train}, Val: {num_val}")
+    logger.info(f"Total files: {len(file_names)}, Train: {num_train}, Val: {num_val}")
 
     # 随机打乱文件名顺序
     random.shuffle(file_names)
@@ -231,7 +234,7 @@ def data_process(dir_path):
                 shutil.move(img_path, os.path.join(val_path, file_name))
                 shutil.move(mask_path, os.path.join(val_path, mask_name))
         else:
-            print(f"File pair missing: {img_path}, {mask_path}")
+            logger.info(f"File pair missing: {img_path}, {mask_path}")
 
 
 # 颜色映射
@@ -242,11 +245,11 @@ def decode_segmap(mask):
 
     label_colors = np.array(
         [
-            (0, 0, 0),  # 背景
-            (255, 0, 0),  # 水藻
-            (0, 255, 0),  # 枯枝败叶
-            (255, 255, 255),  # 垃圾
-            (0, 0, 255),  # 水体
+            (0, 0, 0),         # 背景
+            (128, 0, 0),       # 水藻
+            (0, 128, 0),       # 枯枝败叶
+            (128, 128, 0),     # 垃圾
+            (0, 0, 128)    # 水体
         ]
     )
 
@@ -265,7 +268,7 @@ def visualize_prediction(model, test_loader, device, epoch):
     with torch.no_grad():
         for images, masks in test_loader:
             images, masks = images.to(device), masks.to(device)
-            outputs = model(images)
+            outputs = model(images)['out']
             predictions = torch.argmax(outputs, dim=1)
 
             images = images.cpu().numpy()
@@ -296,7 +299,7 @@ def visualize_prediction(model, test_loader, device, epoch):
                 ax[2].axis("off")
 
                 plt.savefig(
-                    f"/project/train/result-graphs/prediction-epoch{epoch}.{i}.png"
+                    f"/project/train/result-graphs/prediction-epoch{i}.png"
                 )
                 plt.close(fig)  # 确保每次绘制后关闭图形
 
@@ -304,60 +307,52 @@ def visualize_prediction(model, test_loader, device, epoch):
 def main():
     batch_size = 32  # 根据显存大小调整
     num_workers = 8  # 根据 CPU 核心数调整
-    num_epochs = 100  # 训练轮数
+    num_epochs = 100 # 训练轮数
 
     # 数据增强
-    train_transform = transforms.Compose(
-        [
-            transforms.HorizontalFlip(p=0.5),
-            transforms.VerticalFlip(p=0.5),
-            transforms.RandomRotate90(p=0.5),
-            transforms.Rotate(limit=15, p=0.5),
-            transforms.Resize(256, 256),
-            transforms.Normalize(
-                mean=(0.485, 0.456, 0.406),
-                std=(0.229, 0.224, 0.225),
-            ),
-            transforms.ToTensor(),
-        ],
-        additional_targets={"image": "mask"},
-    )
-
-    val_transform = transforms.Compose(
-        [
-            transforms.Resize(256, 256),
-            transforms.Normalize(
-                mean=(0.485, 0.456, 0.406),
-                std=(0.229, 0.224, 0.225),
-                always_apply=True,
-                p=1.0,
-            ),
-            transforms.ToTensor(),
-        ],
-        additional_targets={"mask": "mask"},
-    )
+    train_transform = A.Compose([
+        A.HorizontalFlip(p=0.5),
+        A.VerticalFlip(p=0.5),
+        A.RandomRotate90(p=0.5),
+        A.Rotate(limit=15, p=0.5),
+        A.Resize(256, 256),
+        A.RandomCrop(224, 224),
+        A.GaussianBlur(p=0.5),  # 添加高斯模糊
+        A.RandomBrightnessContrast(p=0.5),  # 添加随机亮度对比度调整
+        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), always_apply=True, p=1.0),
+        ToTensorV2()
+    ], additional_targets={'mask': 'mask'})
+    
+    val_transform = A.Compose([
+        A.Resize(256, 256),
+        A.CenterCrop(224, 224),
+        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), always_apply=True, p=1.0),
+        ToTensorV2()
+    ], additional_targets={'mask': 'mask'})
+    
 
     # 设置路径
     data_dir = "/home/data/"
     train_path = os.path.join(data_dir, "train")
     val_path = os.path.join(data_dir, "val")
     model_path = "/project/train/models/deeplabv3.pth"
-    log_dir = "/project/train/log"
+    log_dir = "/project/train/tensorboard/"
     best_model_path = "/project/train/models/deeplabv3_best.pth"
 
     # 加载预训练模型
     model = models.segmentation.deeplabv3_resnet101(pretrained=True)
     model.classifier[4] = nn.Conv2d(256, 5, kernel_size=1)  # 通道数修改为5，对应类别数
     # 加载训练最好的模型
-    model.load_state_dict(torch.load(best_model_path))
+    if os.path.exists(best_model_path):
+        model.load_state_dict(torch.load(best_model_path))
     model.to(device)
 
     # 数据预处理
     data_process(dir_path=data_dir)
 
     # 数据集加载
-    train_dataset = Dataset(train_path, train_path, train_transform)
-    test_dataset = Dataset(val_path, val_path, val_transform)  # test通常不做数据增强
+    train_dataset = SegmentationDataset(train_path, train_transform)
+    test_dataset = SegmentationDataset(val_path,val_transform)  # test通常不做数据增强
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )
@@ -368,7 +363,7 @@ def main():
     # 损失函数，优化器和学习率调度器
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-5)
-    scheduler = ReduceLROnPlateau(optimizer, step_size=3, gamma=0.1)
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2, verbose=True,min_lr=1e-8)
 
     train(
         model,
@@ -388,5 +383,7 @@ def main():
     # 调用预测和可视化函数
     visualize_prediction(model, test_loader, device,num_epochs+1)
 
+
+logger.info("start")
 
 main()

@@ -21,7 +21,7 @@ x_test = test_data[:, 0].reshape(-1, 1)
 y_test = test_data[:, 1].reshape(-1, 1)
 new_x_test=np.array(new_test_data['x'].values).reshape(-1,1)
 
-degree = 4
+degree = 8
 
 # 多项式特征
 poly_features = PolynomialFeatures(degree=degree)
