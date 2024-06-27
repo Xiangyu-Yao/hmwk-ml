@@ -108,7 +108,6 @@ print("进行准确率计算")
 y_val_pred = svm.predict(x_val)
 accuracy = accuracy_score(y_val, y_val_pred)
 print("准确率:", accuracy)
-input()
 # 作业部分
 print("进行作业结果计算与录入")
 y_test_pred = svm.predict(x_test)
