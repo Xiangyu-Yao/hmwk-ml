@@ -43,6 +43,18 @@
       - [4.3 训练和评估模型](#43-训练和评估模型)
       - [4.4 作业结果录入](#44-作业结果录入)
     - [5.运行结果展示](#5运行结果展示-1)
+  - [任务4：决策树](#任务4决策树)
+    - [1.任务描述](#1任务描述-3)
+    - [2.数据集描述](#2数据集描述-3)
+    - [3.任务分析](#3任务分析-3)
+      - [决策树](#决策树)
+      - [代码思路分析](#代码思路分析)
+    - [4.代码实现和分析](#4代码实现和分析)
+      - [4.1 数据加载和预处理](#41-数据加载和预处理)
+      - [4.2 决策树实现](#42-决策树实现)
+      - [4.3 模型训练和评估](#43-模型训练和评估)
+      - [4.4 作业结果录入](#44-作业结果录入-1)
+    - [5.结果展示](#5结果展示)
 
 
 
@@ -510,3 +522,204 @@ input()
 
 ```
 ### 5.运行结果展示
+![alt text](image-5.png)
+
+---
+
+## 任务4：决策树
+### 1.任务描述
+基于决策树构建机器学习模型，根据乘客的特征预测其在 Titanic 沉船事件中是否幸存。
+### 2.数据集描述
+Titanic数据集中乘客的特征包含客舱等级、性别、年龄、在 Titanic 号上的同伴/配偶数量、船票编号、票价等。对于每一个乘客都包含了其是否在Titanic灾难中生还的信息（Survived），作为真实值标签。
+### 3.任务分析
+
+#### 决策树
+决策树是一种监督学习算法，适用于分类和回归任务，其主要思想就是通过一系列的筛选条件，将数据集分割为更小的子集，形成一个类似于树状的结构。每个节点代表一个特征，分支为该特征的可能值，叶子节点则代表分类结果或回归值。
+本次考虑建立一个简单的二叉决策树以完成任务，那么就需要找到每次分割的最佳分割点。寻找依据为信息增益，其公式如下
+
+<div align = center>
+
+$IG(Y,X) = H(Y)-\sum_{v\in Values(X)}P(v)·H(Y|X=v)$
+
+</div>
+
+$H(Y)$是分割前目标变量$Y$的熵，$Values(X)$ 是特征$X$的所有可能值.$P(v)$是特征$X$取值$v$的概率。$H(Y∣X=v)$是在特征$X$取值$v$时目标变量 $Y$的条件熵。
+熵的公式如下：
+
+<div align = center>
+
+$H(Y)=-\sum_{i=1}^kp_i\log_2(p_i)$
+
+</div>
+
+之后通过方法递归建立完整的决策树。
+
+#### 代码思路分析
+本次任务需要基于决策树构建一个机器学习模型，使用Titanic数据集预测乘客在沉船事件中的生还情况。具体来说，以乘客的有效特征来预测他们是否生还，那么这里就需要对原始数据集进行数据填充并根据经验等依据筛选掉无效的特征，以提高决策树的效果。由于年龄特征为连续数据，而决策树更擅长处理离散数据，因此这里还需要将年龄数据分块，将其构造为离散数据。并将字符数据转换为数值数据以便于模型训练。
+在处理完数据之后，就需要进行决策树的构建，具体需要的部件上文已经提过，这里不再赘述。
+最后就是模型的训练，评估以及测试。
+### 4.代码实现和分析
+#### 4.1 数据加载和预处理
+定义`preprocess_data`方法进行数据的读取和预处理，先通过`pandas`中的`read_csv`方法读取存储在csv文件中的数据，之后进行预处理，根据经验删除一些无关的特征，用中位数填充缺失值，并将字符特征编码为数值特征。最后对年龄进行分块，使其从连续数据变为离散数据，便于模型训练。
+利用`os`的相关方法获取数据存储路径，使用定义的`preprocess_data`方法对数据进行预处理。之后分离数据特征和标签便于后续训练和评估
+```python
+import os
+import pandas as pd
+import numpy as np
+
+# 读取和预处理数据
+def preprocess_data(file_path):
+    data = pd.read_csv(file_path)
+
+    # 删除无关特征
+    data.drop(columns=["PassengerId", "Name", "Ticket", "Fare", "Cabin"], inplace=True)
+
+    # 填充缺失值
+    data["Age"].fillna(data["Age"].mean(), inplace=True)
+    data["Embarked"].fillna("S", inplace=True)
+
+    # 编码分类特征
+    data["Sex"] = data["Sex"].map({"male": 0, "female": 1})
+    data["Embarked"] = data["Embarked"].map({"S": 0, "C": 1, "Q": 2})
+
+    # 分箱处理连续数据Age
+    # 如果年龄小于1，设为0-1岁区间；其他年龄分成多个区间
+    bins = [0, 1, 12, 20, 40, 60, 80]
+    labels = [0, 1, 2, 3, 4, 5]
+    data["Age"] = pd.cut(data["Age"], bins=bins, labels=labels, right=False)
+
+    return data
+
+# 定义路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+train_file_path = os.path.join(current_dir, "train.csv")
+test_file_path = os.path.join(current_dir, "test.csv")
+
+# 预处理数据
+train_data = preprocess_data(train_file_path)
+test_data = preprocess_data(test_file_path)
+
+# 分离特征和标签
+X_train = train_data.drop(columns=["Survived"])
+y_train = train_data["Survived"]
+```
+
+#### 4.2 决策树实现
+实现一个简单的二叉决策树以完成这次任务，`fit`方法用于树的训练，具体的逻辑在`_grow_tree`方法中。预定义了最大深度和最小样本数作为剪枝处理，但由于后续训练效果不错没有用到。之后调用`_best_split`方法寻找最佳分割点。
+在该方法中，通过计算特征值的所有阈值和其对应的类别来找出最佳分割点。具体逻辑为对其划分后左右子树的数量进行遍历，并依次通过`_information_gain`计算信息增益。信息增益最大的划分方式即为最佳分割点。
+之后根据找到的最佳分割点开始子树的生长，这里是一个递归的过程。
+`predict`方法用于训练结束后的预测，逻辑为根据数据进行树查找，判断该数据应该属于哪一个叶节点并给出预测结果
+```python
+# 决策树实现
+class SimpleDecisionTree:
+    def __init__(self, max_depth=5):
+        self.max_depth = max_depth
+        self.tree = None
+
+    def fit(self, X, y):
+        self.tree = self._grow_tree(X, y, depth=0)
+
+    def _grow_tree(self, X, y, depth):
+        num_samples, num_features = X.shape
+        # 超深度或者样本数小于等于1
+        if depth >= self.max_depth or num_samples <= 1:
+            return np.round(np.mean(y))  # 取平均值并四舍五入
+
+        # 寻找最佳分割点
+        best_feature, best_threshold = self._best_split(X, y, num_samples, num_features)
+        if best_feature is None:
+            return np.round(np.mean(y))
+
+        indices_left = X[:, best_feature] < best_threshold
+        left_subtree = self._grow_tree(X[indices_left], y[indices_left], depth + 1)
+        right_subtree = self._grow_tree(X[~indices_left], y[~indices_left], depth + 1)
+        return (best_feature, best_threshold, left_subtree, right_subtree)
+
+    def _best_split(self, X, y, num_samples, num_features):
+        best_gain = -1
+        split_idx, split_threshold = None, None
+        # 计算特征值的所有可能阈值及其对应的类别
+        for feature_idx in range(num_features):
+            thresholds, classes = zip(
+                *sorted(zip(X[:, feature_idx], y))
+            )  # 对特征值和目标变量排序
+            # 初始化左右子树的样本数量
+            num_left = [0] * 2
+            num_right = [np.sum(y == 0), np.sum(y == 1)]
+            for i in range(1, num_samples):
+                c = classes[i - 1]
+                num_left[c] += 1
+                num_right[c] -= 1
+                gain = self._information_gain(
+                    y, classes, num_left, num_right
+                )  # 信息增益
+                if thresholds[i] == thresholds[i - 1]:
+                    continue
+                if gain > best_gain:
+                    best_gain = gain
+                    split_idx = feature_idx
+                    split_threshold = (thresholds[i] + thresholds[i - 1]) / 2
+        return split_idx, split_threshold
+
+    def _information_gain(self, y, classes, num_left, num_right):
+        p = len(classes)
+        p_left = sum(num_left) / p
+        p_right = sum(num_right) / p
+
+        if p_left == 0 or p_right == 0:
+            return 0
+
+        h = self._entropy(classes)
+        h_left = self._entropy(classes[: sum(num_left)])
+        h_right = self._entropy(classes[sum(num_left) :])
+
+        return h - (p_left * h_left + p_right * h_right)
+
+    def _entropy(self, y):
+        hist = np.bincount(y)
+        ps = hist / len(y)  # 各类出现概率
+        return -np.sum([p * np.log2(p) for p in ps if p > 0])
+
+    def predict(self, X):
+        return [self._predict(inputs) for inputs in X]
+
+    def _predict(self, inputs):
+        node = self.tree
+        while isinstance(node, tuple):
+            if inputs[node[0]] < node[1]:
+                node = node[2]
+            else:
+                node = node[3]
+        return node
+
+```
+#### 4.3 模型训练和评估
+调用自定义的决策树模型，并使用处理好的训练数据进行训练。训练完成后直接在训练集上进行模型评估。
+
+```python
+# 构建模型
+model = SimpleDecisionTree()
+model.fit(X_train.values, y_train.values)
+
+# 在训练集上评估模型
+train_predictions = model.predict(X_train.values)
+accuracy = np.mean(train_predictions == y_train.values)
+print(f"Train Accuracy: {accuracy:.2f}")
+```
+#### 4.4 作业结果录入
+对作业集数据进行预测，将预测结果转为整数形式并保存到原文件中
+```python
+# 对测试集进行预测
+test_predictions = model.predict(test_data.values)
+
+# 将预测结果转换为整数形式
+test_predictions = [int(prediction) for prediction in test_predictions]
+
+# 保存结果到submission.csv
+submission = pd.read_csv(test_file_path)[["PassengerId"]].copy()
+submission["Survived"] = test_predictions
+submission.to_csv(os.path.join(current_dir, "submission.csv"), index=False)
+```
+### 5.结果展示
+![alt text](image-6.png)
+据助教反馈，测试集正确率为0.774
