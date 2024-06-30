@@ -55,6 +55,25 @@
       - [4.3 模型训练和评估](#43-模型训练和评估)
       - [4.4 作业结果录入](#44-作业结果录入-1)
     - [5.结果展示](#5结果展示)
+  - [任务5：岸边垃圾识别](#任务5岸边垃圾识别)
+    - [1.任务描述](#1任务描述-4)
+    - [2.数据集分析](#2数据集分析)
+    - [3.任务分析](#3任务分析-4)
+      - [deeplabv3](#deeplabv3)
+    - [4.代码实现和分析](#4代码实现和分析-1)
+      - [4.1全局设置](#41全局设置)
+      - [4.2 数据读取和预处理](#42-数据读取和预处理)
+      - [4.3模型训练](#43模型训练)
+      - [4.4 模型测试和结果可视化](#44-模型测试和结果可视化)
+      - [4.5 程序总逻辑](#45-程序总逻辑)
+      - [4.6 接口定义](#46-接口定义)
+    - [5.结果展示](#5结果展示-1)
+      - [最终模型的结果可视化](#最终模型的结果可视化)
+      - [训练记录：](#训练记录)
+      - [打榜记录：](#打榜记录)
+      - [打榜排名](#打榜排名)
+      - [模型测试记录：](#模型测试记录)
+      - [测试任务](#测试任务)
 
 
 
@@ -199,14 +218,18 @@ plt.show()
 
 ### 5.测试结果展示
 #### 5.1 不同阶数下的MSE
-degree=2
-![alt text](image.png)
-degree=4
-![alt text](image-1.png)
-degree=6
-![alt text](image-2.png)
-degree=8
-![alt text](image-3.png)
+degree=2  
+
+![alt text](image.png)  
+degree=4  
+
+![alt text](image-1.png)  
+degree=6  
+
+![alt text](image-2.png)  
+degree=8  
+
+![alt text](image-3.png)  
 
 #### 5.2 不同阶数下的图像曲线以及表达式
 degree=2
@@ -723,3 +746,553 @@ submission.to_csv(os.path.join(current_dir, "submission.csv"), index=False)
 ### 5.结果展示
 ![alt text](image-6.png)
 据助教反馈，测试集正确率为0.774
+
+---
+
+## 任务5：岸边垃圾识别
+### 1.任务描述
+水环境保护一直受到大家的高度关注。水体附近的垃圾不仅仅会造成消极的视觉冲击，还会继续常常造成水质问题；所以需要实时监测水体附近的的生活垃圾等，以便及时处理。项目算法要达到的目的：通过对岸边和岸上的垃圾进行分割，并按照面积阈值判断并输出报警消息
+### 2.数据集分析
+数据集中包含jpg和png两种格式的同名图片，其中jpg格式为图片数据，png格式为图片的mask，mask中对水体和垃圾等进行分割标注，类别有：background：背景(像素值：0),algae：水藻(像素值：1),dead_twigs_leaves：枯枝败叶(像素值：2),garbage：垃圾(像素值：3),water：水体(像素值：4)。
+### 3.任务分析
+本次任务属于语义分割任务，要求对岸边和岸上的垃圾进行分割，并根据面积阈值判断并输出报警信息。由于任务比较复杂，个人认为自行编写的模型可能不能胜任，因此准备采用预训练的`deeplabv3_resnet101`模型。
+#### deeplabv3
+该模型是Google提出的用于语义分割的深度学习模型。它通过引入多种技术，显著提高了分割精度和效率，尤其在复杂场景和多尺度对象识别中表现出色
+deeplabv3的核心思想是通过空洞卷积和空间金字塔池化来提高感受野和捕获多尺度信息。在其模型架构中主要包含以下几部分：
++ 主干网络
+    使用预训练的卷积神经网络作为特征提取器，作用为提取高质量的特征图以便后续处理
++ ASPP模块
+    包含多个不同空洞率的卷积层，用于捕获不同尺度的特征。并结合全剧平均池化来进一步增强全局上下文信息。最后将不同尺度的特征拼接在一起，形成一个丰富的特征表示
+确定使用的预训练模型后，开始构思代码框架。主体框架与其他机器学习任务类似，也就是数据读取和预处理，模型训练，模型评估和测试。但由于这次任务的复杂性，将会用到多种手段以增强训练效果。
+同时由于本次项目在平台上完成，还需要编写一个`ji.py`以完成接口
+
+### 4.代码实现和分析
+
+#### 4.1全局设置
+不知道为什么，我的`print`方法并不能在平台的实时日志中正常输出，因此添加以下设置以保证程序运行信息的有效输出。使用`logging`实现输出，并通过`os`禁用输出缓存，并重定向到标准输出流。虽不是很明白背后原理，但是这样确实保证了运行信息的正常输出。同时这一部分还包括了整个程序用到的所有第三方库
+
+```python
+import os
+import sys
+import torch
+import numpy as np
+import torch.nn as nn
+import torch.optim as optim
+from torchvision import models
+import logging
+import random
+from torch.utils.tensorboard import SummaryWriter
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torchmetrics import JaccardIndex
+from tqdm import tqdm
+from torch.cuda.amp import GradScaler,autocast
+from PIL import Image
+from torch.utils.data import Dataset, DataLoader
+import shutil
+import matplotlib.pyplot as plt
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
+os.environ['PYTHONUNBUFFERED'] = '1'
+
+```
+#### 4.2 数据读取和预处理
+定义`SegmentationDataset`数据集类以进行数据的读取，其中由于图片数据和对应mask只有后缀不同，因此设定path时将图片路径的后缀转为png就获得了mask的路径。
+数据预处理则是定义了`data_process`方法以及进行数据预处理。先读取了所有数据的目录，由于有两个数据集，因此创建一个`merged`目录先将两个数据集合并，再创建`train`和`val`目录用于训练集验证集的划分。
+```python
+class SegmentationDataset(Dataset):
+    def __init__(self, data_dir, transform=None):
+
+        self.data_dir = data_dir
+        self.image_names = [f for f in os.listdir(data_dir) if f.endswith(".jpg")]
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.image_names)
+
+    def __getitem__(self, idx):
+        img_name = self.image_names[idx]
+        img_path = os.path.join(self.data_dir, img_name)
+        mask_path = os.path.join(self.data_dir, img_name.replace(".jpg", ".png"))
+
+        image = Image.open(img_path)
+        image = image.convert("RGB")
+        mask = Image.open(mask_path).convert("L")
+
+        image= np.array(image)
+        mask = np.array(mask)
+
+        if self.transform:
+            augmented = self.transform(image=image, mask=mask)
+            image = augmented["image"]
+            mask = augmented["mask"]
+
+        mask = torch.as_tensor(mask, dtype=torch.long)
+        return image, mask
+
+def data_process(dir_path):
+    data_path_1 = os.path.join(dir_path, "1704")
+    data_path_2 = os.path.join(dir_path, "3288")
+    merged_path = os.path.join(dir_path, "merged")
+    train_path = os.path.join(dir_path, "train")
+    val_path = os.path.join(dir_path, "val")
+
+    # 创建文件夹
+    if not os.path.exists(merged_path):
+        os.makedirs(merged_path)
+    if not os.path.exists(train_path):
+        os.makedirs(train_path)
+    if not os.path.exists(val_path):
+        os.makedirs(val_path)
+
+    # 合并数据
+    for data_path in [data_path_1, data_path_2]:
+        for file_name in os.listdir(data_path):
+            file_path = os.path.join(data_path, file_name)
+            if file_name.endswith(".jpg") or file_name.endswith(".png"):
+                dest_path = os.path.join(merged_path, file_name)
+                try:
+                    shutil.copy(file_path, dest_path)
+                except Exception:
+                    logger.info(f"Failed to copy file: {file_path}")
+
+                # 检查文件是否成功复制，如果没有则重试
+                if not os.path.exists(dest_path):
+                    logger.info(f"Retry copying file: {file_path}")
+                    try:
+                        shutil.copy(file_path, dest_path)
+                    except Exception:
+                        logger.info(f"Failed to copy file on retry: {file_path}")
+
+    # 获取merged文件夹中的所有文件名
+    file_names = [f for f in os.listdir(merged_path) if f.endswith(".jpg")]
+
+    # 计算划分比例
+    train_ratio = 0.9
+    num_train = int(len(file_names) * train_ratio)
+    num_val = len(file_names) - num_train
+
+    logger.info(f"Total files: {len(file_names)}, Train: {num_train}, Val: {num_val}")
+
+    # 随机打乱文件名顺序
+    random.shuffle(file_names)
+
+    # 划分训练集和验证集
+    for i, file_name in enumerate(file_names):
+        img_path = os.path.join(merged_path, file_name)
+        mask_name = file_name.replace(".jpg", ".png")
+        mask_path = os.path.join(merged_path, mask_name)
+
+        if os.path.exists(img_path) and os.path.exists(mask_path):
+            if i < num_train:
+                shutil.move(img_path, os.path.join(train_path, file_name))
+                shutil.move(mask_path, os.path.join(train_path, mask_name))
+            else:
+                shutil.move(img_path, os.path.join(val_path, file_name))
+                shutil.move(mask_path, os.path.join(val_path, mask_name))
+        else:
+            logger.info(f"File pair missing: {img_path}, {mask_path}")
+
+```
+数据增强用到的transform如下:
+对训练集和验证集做了不同的增强，因为验证集并不需要翻转随机采样等操作以增加数据量，只需要保证数据尺寸相同，进行相同标准化即可。
+```python
+    train_transform = A.Compose([
+        A.HorizontalFlip(p=0.5),
+        A.VerticalFlip(p=0.5),
+        A.RandomRotate90(p=0.5),
+        A.Rotate(limit=15, p=0.5),
+        A.Resize(256, 256),
+        A.RandomCrop(224, 224),
+        A.GaussianBlur(p=0.5),  # 添加高斯模糊
+        A.RandomBrightnessContrast(p=0.5),  # 添加随机亮度对比度调整
+        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), always_apply=True, p=1.0),
+        ToTensorV2()
+    ], additional_targets={'mask': 'mask'})
+    
+    val_transform = A.Compose([
+        A.Resize(256, 256),
+        A.CenterCrop(224, 224),
+        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), always_apply=True, p=1.0),
+        ToTensorV2()
+    ], additional_targets={'mask': 'mask'})
+    
+```
+
+#### 4.3模型训练
+定义`train`方法以实现模型训练。使用`tensorboard`来记录训练中的参数变化以及绘制图表。用`tqdm`实现进度条以掌握每个epoch的训练进度。在每个epoch的训练结束后都进行一次验证，以验证集的loss为标准进行学习率的更新，同时比较该epoch训练的模型是否为效果最好的，如是则保存。每5个epoch额外保存一次模型，方便训练中断恢复。
+通过`evaluate_model`方法进行验证与loss和miou的计算。miou计算借助了`JaccardIndex`类。
+```python
+def train(
+    model,
+    train_loader,
+    test_loader,
+    criterion,
+    optimizer,
+    scheduler,
+    best_model_path,
+    model_path,
+    log_dir,
+    num_epochs=5,
+):
+    # tensorboard记录器
+    writer = SummaryWriter(log_dir=log_dir)
+    scaler = GradScaler()
+    best_val_loss = float("inf")
+    best_epoch = -1
+    best_val_miou = 0
+
+    # 模型训练
+    logger.info("begin train")
+    for epoch in range(num_epochs):
+        running_loss = 0.0
+        model.train()
+        for images, masks in tqdm(train_loader, desc=f"Epoch {epoch+1}/{num_epochs}",file=sys.stdout):
+            images = images.to(device)
+            masks = masks.to(device)
+
+            optimizer.zero_grad()
+            with autocast():
+                outputs = model(images)["out"]
+                loss = criterion(outputs, masks)
+
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+
+            running_loss += loss.item()
+
+        avg_loss = running_loss / len(train_loader)
+        current_lr = optimizer.param_groups[0]["lr"]  # 获取当前的学习率
+
+        logger.info(
+            f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss}, lr: {current_lr}"
+        )
+        writer.add_scalar("train_loss", avg_loss, epoch)
+        writer.add_scalar("lr", current_lr, epoch)  # 记录学习率
+
+        # 验证
+        val_loss, val_miou = evaluate_model(model, test_loader, criterion)
+        logger.info(f"Val Loss [{epoch+1}/{num_epochs}]: {val_loss}, mIoU: {val_miou}")
+        writer.add_scalar("val_loss", val_loss, epoch)
+        writer.add_scalar("miou", val_miou, epoch)
+
+        # 更新最好的模型
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            best_val_miou = val_miou
+            best_epoch = epoch + 1
+            torch.save(model.state_dict(), best_model_path)
+            logger.info(
+                f"best val_loss's epoch={best_epoch}, best_val_Loss={best_val_loss}, best_mIoU={best_val_miou}"
+            )
+
+        # 更新学习率
+        scheduler.step(val_loss)
+        if epoch%5==0:
+            torch.save(model.state_dict(), model_path)
+            logger.info(f"Epoch{epoch},save the models")
+    
+    writer.close()
+    torch.save(model.state_dict(), model_path)
+    logger.info("模型已保存")
+    logger.info(
+        f"best val_loss={best_val_loss}, best val_miou={best_val_miou}, bset epoch={best_epoch}"
+    )
+def evaluate_model(model, dataloader, criterion):
+    model.eval()
+    logger.info(f"val dataset's length is {len(dataloader)}")
+    total_loss = 0
+    total_miou = 0
+    miou_metric = JaccardIndex(task="multiclass",num_classes=5, ignore_index=None).to(device)  # 定义mIoU指标
+
+    with torch.no_grad():
+        for images, masks in tqdm(dataloader, desc="Validation", leave=False,file=sys.stdout):
+            images = images.to(device)
+            masks = masks.to(device)
+            outputs = model(images)["out"]
+            loss = criterion(outputs, masks)
+            total_loss += loss.item()
+
+            # 计算miou
+            preds = torch.argmax(outputs, dim=1)
+            miou = miou_metric(preds, masks)
+            total_miou += miou.item()
+    avg_loss = total_loss / len(dataloader)
+    avg_miou = total_miou / len(dataloader)
+
+    return avg_loss, avg_miou
+```
+#### 4.4 模型测试和结果可视化
+通过`visualize_prediction`方法进行模型测试和结果的可视化。先调用训练好的模型对测试集数据进行预测，并对预测结果进行逆归一化以方便后续可视化。可视化时通过`decode_segmap`方法进行颜色映射，将mask更加直观的展现出来。
+```python
+def visualize_prediction(model, test_loader, device, epoch):
+    model.eval()
+    with torch.no_grad():
+        for images, masks in test_loader:
+            images, masks = images.to(device), masks.to(device)
+            outputs = model(images)['out']
+            predictions = torch.argmax(outputs, dim=1)
+
+            images = images.cpu().numpy()
+            predictions = predictions.cpu().numpy()
+            masks = masks.cpu().numpy()
+
+            # 逆归一化操作
+            mean = np.array([0.485, 0.456, 0.406])
+            std = np.array([0.229, 0.224, 0.225])
+            images = (images * std[None, :, None, None]) + mean[None, :, None, None]
+            images = np.clip(images, 0, 1)  # 确保范围在 [0, 1]
+
+            # 确保有至少3个样本进行可视化
+            num_samples = min(images.shape[0], 3)
+            for i in range(num_samples):
+                fig, ax = plt.subplots(1, 3, figsize=(18, 6))
+
+                ax[0].imshow(images[i].transpose(1, 2, 0))  # 原始图片
+                ax[0].set_title("Original Image")
+                ax[0].axis("off")
+
+                ax[1].imshow(decode_segmap(predictions[i]))  # 预测的mask
+                ax[1].set_title("Predicted Mask")
+                ax[1].axis("off")
+
+                ax[2].imshow(decode_segmap(masks[i]))  # 真实的mask
+                ax[2].set_title("Ground Truth Mask")
+                ax[2].axis("off")
+
+                plt.savefig(
+                    f"/project/train/result-graphs/prediction-epoch{i}.png"
+                )
+                plt.close(fig)  # 确保每次绘制后关闭图形
+
+def decode_segmap(mask):
+    r = np.zeros_like(mask).astype(np.uint8)
+    g = np.zeros_like(mask).astype(np.uint8)
+    b = np.zeros_like(mask).astype(np.uint8)
+
+    label_colors = np.array(
+        [
+            (0, 0, 0),         # 背景
+            (128, 0, 0),       # 水藻
+            (0, 128, 0),       # 枯枝败叶
+            (128, 128, 0),     # 垃圾
+            (0, 0, 128)    # 水体
+        ]
+    )
+
+    for label in range(0, 5):
+        r[mask == label] = label_colors[label, 0]
+        g[mask == label] = label_colors[label, 1]
+        b[mask == label] = label_colors[label, 2]
+
+    rgb = np.stack([r, g, b], axis=2)
+    return rgb / 255.0  # 保持归一化到 [0, 1]
+```
+#### 4.5 程序总逻辑
+在`main` 函数中进行了程序所有功能模块的串联。
+```python
+def main():
+    batch_size = 32  # 根据显存大小调整
+    num_workers = 8  # 根据 CPU 核心数调整
+    num_epochs = 100 # 训练轮数
+
+    # 数据增强
+    train_transform = A.Compose([
+        A.HorizontalFlip(p=0.5),
+        A.VerticalFlip(p=0.5),
+        A.RandomRotate90(p=0.5),
+        A.Rotate(limit=15, p=0.5),
+        A.Resize(256, 256),
+        A.RandomCrop(224, 224),
+        A.GaussianBlur(p=0.5),  # 添加高斯模糊
+        A.RandomBrightnessContrast(p=0.5),  # 添加随机亮度对比度调整
+        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), always_apply=True, p=1.0),
+        ToTensorV2()
+    ], additional_targets={'mask': 'mask'})
+    
+    val_transform = A.Compose([
+        A.Resize(256, 256),
+        A.CenterCrop(224, 224),
+        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), always_apply=True, p=1.0),
+        ToTensorV2()
+    ], additional_targets={'mask': 'mask'})
+    
+
+    # 设置路径
+    data_dir = "/home/data/"
+    train_path = os.path.join(data_dir, "train")
+    val_path = os.path.join(data_dir, "val")
+    model_path = "/project/train/models/deeplabv3.pth"
+    log_dir = "/project/train/tensorboard/"
+    best_model_path = "/project/train/models/deeplabv3_best.pth"
+
+    # 加载预训练模型
+    model = models.segmentation.deeplabv3_resnet101(pretrained=True)
+    model.classifier[4] = nn.Conv2d(256, 5, kernel_size=1)  # 通道数修改为5，对应类别数
+    # 加载训练最好的模型
+    if os.path.exists(best_model_path):
+        model.load_state_dict(torch.load(best_model_path))
+    model.to(device)
+
+    # 数据预处理
+    data_process(dir_path=data_dir)
+
+    # 数据集加载
+    train_dataset = SegmentationDataset(train_path, train_transform)
+    test_dataset = SegmentationDataset(val_path,val_transform)  # test通常不做数据增强
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+    )
+    test_loader = DataLoader(
+        test_dataset, batch_size=8, shuffle=True, num_workers=num_workers
+    )
+
+    # 损失函数，优化器和学习率调度器
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-5)
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2, verbose=True,min_lr=1e-8)
+
+    train(
+        model,
+        train_loader,
+        test_loader,
+        criterion,
+        optimizer,
+        scheduler,
+        best_model_path,
+        model_path,
+        log_dir,
+        num_epochs,
+    )
+
+    model.load_state_dict(torch.load(best_model_path))
+    
+    # 调用预测和可视化函数
+    visualize_prediction(model, test_loader, device,num_epochs+1)
+
+```
+
+#### 4.6 接口定义
+在`ji.py`中进行了平台需要的接口定义，具体如下：
+主体为平台规定格式。
+```python
+# ji.py
+import json
+import torch
+import cv2
+from PIL import Image
+import numpy as np
+from torchvision import models, transforms
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+
+# 初始化模型
+def init():
+    model = torch.load("ev_sdk/src/model_1599.pkl",map_location=torch.device('cuda'))
+    model.classifier[4] = torch.nn.Conv2d(256, 5, kernel_size=1)  # 通道数修改为5，对应类别数
+    model.load_state_dict(torch.load('/project/train/models/deeplabv3.pth',map_location=torch.device('cuda')))
+    model.to(torch.device('cuda'))
+    model.eval()
+    return model
+
+# 处理图像
+def process_image(handle=None, input_image=None, args=None, **kwargs):
+    args = json.loads(args)
+    mask_output_path = args.get('mask_output_path', '')
+
+    # 图像转换
+    image_transform = A.Compose([
+        A.Resize(256, 256),
+        A.CenterCrop(224, 224),
+        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), always_apply=True, p=1.0),
+        ToTensorV2()
+    ])
+
+    # 将 BGR 转换为 RGB 并应用图像转换
+    input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
+    image_array = np.array(input_image)
+    input_tensor = image_transform(image=image_array)['image'].unsqueeze(0).to(torch.device('cuda'))
+
+    # 生成掩码
+    with torch.no_grad():
+        output = handle(input_tensor)['out'][0]
+        
+    output_predictions = torch.argmax(output, dim=0)
+    output_predictions = output_predictions.cpu().numpy().astype(np.uint8)
+    
+    height, width = input_image.shape[:2]
+
+    transforms_mask=A.Compose([
+        A.Resize(height,width),
+    ])
+    output_predictions= transforms_mask(image=output_predictions)['image']
+
+    if input_image.shape[:2] != output_predictions.shape:
+        raise ValueError(f"Mismatch in dimensions: Input image shape {input_image.shape[:2]}, Output predictions shape {output_predictions.shape}")
+    # 保存掩码
+    if mask_output_path:
+        output_image = Image.fromarray(output_predictions)
+        output_image.save(mask_output_path)
+
+    # 解析输出，查找目标对象
+    
+    objects = []
+    target_info = []
+    is_alert = False
+
+    # 查找垃圾对象
+    garbage_mask = (output_predictions == 3).astype(np.uint8)
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(garbage_mask, connectivity=8)
+
+    for i in range(1, num_labels):
+        x, y, w, h, area = stats[i]
+        area_ratio = area / (width * height)
+
+        if area_ratio > 0.02:  # 阈值为0.02
+            target = {
+                "x": int(x),
+                "y": int(y),
+                "height": int(h),
+                "width": int(w),
+                "name": "garbage",
+                "area_ratio": float(area_ratio)
+            }
+            objects.append(target)
+            target_info.append(target)
+            is_alert = True
+
+    result = {
+        "algorithm_data": {
+            "is_alert": is_alert,
+            "target_count": len(target_info),
+            "target_info": target_info
+        },
+        "model_data": {
+            "objects": objects
+        }
+    }
+
+    if mask_output_path:
+        result["model_data"]["mask"] = mask_output_path
+
+    return json.dumps(result, indent=4)
+```
+
+### 5.结果展示
+#### 最终模型的结果可视化
+![alt text](<FNCBYSHNV(@[KV9D4$PGGLA.png>)  
+#### 训练记录：
+![alt text](训练.png)  
+#### 打榜记录：
+![alt text](我的打榜.png)  
+#### 打榜排名
+![alt text](榜单排名.jpg)  
+#### 模型测试记录：
+![alt text](模型测试.png)  
+#### 测试任务
+![alt text](测试任务信息（上半）.png)  
+![alt text](测试任务信息（下半）.png)  
